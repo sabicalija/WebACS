@@ -25,8 +25,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- ACS.eventManager = function() {
+ import log from "loglevel";
+
+ export default function() {
 
 // ***********************************************************************************************************************
 // ************************************************** private variables **************************************************

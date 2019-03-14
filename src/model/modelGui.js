@@ -25,100 +25,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
- ACS.modelList = function() {
+ import EventManager from "../eventManager.js";
+ import Gui from "./gui.js";
+ import mConst from "./mConst.js";
+
+ export default function() { 
+
 
 // ***********************************************************************************************************************
 // ************************************************** private variables **************************************************
 // ***********************************************************************************************************************
-	var list = []; // ACS.model
-	var filenameCounter = 1;
-	
+	var decoration = mConst.MODELGUI_DECORATION;
+	var fullScreen = mConst.MODELGUI_FULLSCREEN;
+	var alwaysOnTop = mConst.MODELGUI_ALWAYSONTOP;
+	var toSystemTray = mConst.MODELGUI_TOSYSTEMTRAY;
+	var showControlPanel = mConst.MODELGUI_SHOWCONTROLPANEL;
+
 // ***********************************************************************************************************************
 // ************************************************** private methods ****************************************************
 // ***********************************************************************************************************************
-	var removeSubstituteFilename = function() { // is called when actModel is removed or loaded from a file
-		var actNumber = list[returnObj.actIndex].getFilename().slice(7); // removing the 7-letter-word "newfile" leaves the number
-		if ((filenameCounter - 1) + '' === actNumber) filenameCounter--;
-	}
-	
-	var filenameBeingChangedEventHandler = function() {
-		removeSubstituteFilename();
-	}
 	
 // ***********************************************************************************************************************
 // ************************************************** public stuff *******************************************************
 // ***********************************************************************************************************************
 	var returnObj = {};
 	
-	returnObj.actIndex = 0;
-	returnObj.events = ACS.eventManager();
+	returnObj.events = EventManager();
 	
-	returnObj.addNewModel = function() {
-		this.actIndex = (list.push(ACS.model('newFile' + filenameCounter))) - 1;
-		filenameCounter++;
-		
-		this.events.fireEvent('newModelAddedEvent');		
-		this.events.fireEvent('actModelChangedEvent');
-		list[this.actIndex].events.registerHandler('filenameBeingChangedEvent', filenameBeingChangedEventHandler);
+	returnObj.areGuiWindow = Gui(mConst.MODELGUI_AREGUIWINDOW_X, mConst.MODELGUI_AREGUIWINDOW_Y, mConst.MODELGUI_AREGUIWINDOW_WIDTH, mConst.MODELGUI_AREGUIWINDOW_HEIGHT, false);
+	
+	returnObj.setDecoration = function(dec) {
+		decoration = dec;
+		returnObj.events.fireEvent('decorationChangedEvent');
 	}
 	
-	returnObj.getActModel = function() {
-		return list[this.actIndex];
+	returnObj.getDecoration = function() {
+		return decoration;
+	}
+
+	returnObj.setFullScreen = function(fs) {
+		fullScreen = fs;
 	}
 	
-	returnObj.setActModel = function(actIndex) {
-		if ((actIndex > -1) && (actIndex < list.length)) {
-			this.actIndex = actIndex;
-			this.events.fireEvent('actModelChangedEvent');
-			return true;
-		}  else {
-			return false;
-		}
+	returnObj.getFullScreen = function() {
+		return fullScreen;
+	}
+
+	returnObj.setAlwaysOnTop = function(aot) {
+		alwaysOnTop = aot;
 	}
 	
-	returnObj.getModelAtIndex = function(index) {
-		return list[index];
+	returnObj.getAlwaysOnTop = function() {
+		return alwaysOnTop;
+	}
+
+	returnObj.setToSystemTray = function(tst) {
+		toSystemTray = tst;
 	}
 	
-	returnObj.removeModel = function() { // removes the actModel
-		this.events.fireEvent('removingModelEvent');
-		removeSubstituteFilename();
-		list.splice(this.actIndex, 1);
-		if (this.actIndex > (list.length - 1)) this.actIndex--; // if no more models to the right, go to the left
-		if (this.actIndex === -1) { // if list is empty, add a new empty model again
-			returnObj.addNewModel();
-		}
-		this.events.fireEvent('actModelChangedEvent');
+	returnObj.getToSystemTray = function() {
+		return toSystemTray;
+	}
+
+	returnObj.setShowControlPanel = function(scp) {
+		showControlPanel = scp;
+		returnObj.events.fireEvent('showControlPanelChangedEvent');
 	}
 	
-	returnObj.getLength = function() {
-		return list.length;
-	}
+	returnObj.getShowControlPanel = function() {
+		return showControlPanel;
+	}	
 	
-	returnObj.loadQueryStringModel = function () {
-		var xmlObj;
-		var httpRequest = new XMLHttpRequest();
-		httpRequest.onreadystatechange = function () {
-			if (httpRequest.readyState === XMLHttpRequest.DONE && httpRequest.status === 200) {
-				list[0].setFilename(ACS.openFile.substring(ACS.openFile.lastIndexOf('/') + 1));
-				xmlObj = $.parseXML(httpRequest.responseText);
-				list[0].loadModel(xmlObj);
-			}
-		}
-		try {
-			httpRequest.open('GET', ACS.openFile, false);
-			httpRequest.send();
-		} catch (e) {
-			// Note: If an invalid URL is passed to the WebACS, it will start normally, showing an empty model.
-			// Since URLs will usually be passed by some software and not by the enduser directly, no error-popup 
-			// has been installed in order not to confuse the enduser, who often will have no knowledge of URLs and querystrings.
-		}
-	}
 // ***********************************************************************************************************************
 // ************************************************** constructor code ***************************************************
 // ***********************************************************************************************************************
-	returnObj.addNewModel();
-
+	
 	return returnObj;
 }

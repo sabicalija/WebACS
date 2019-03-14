@@ -25,8 +25,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import EventManager from "../eventManager.js";
  
- ACS.gui = function(x, // int
+export default function(x, // int
 				    y, // int
 				    width, // int
 				    height, // int
@@ -45,7 +46,7 @@
 // ***********************************************************************************************************************
 	var returnObj = {};
 	
-	returnObj.events = ACS.eventManager();
+	returnObj.events = EventManager();
 	
 	returnObj.setNewPosition = function(pos) { // Object {x: int, y: int}
 		x = pos.x;
