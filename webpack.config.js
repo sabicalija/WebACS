@@ -5,19 +5,23 @@ const webpack = require("webpack");
 require("@babel/register");
 
 // plugins
-const htmlWebpackPlugin = require("html-webpack-plugin");
-const copyWebpackPlugin = require("copy-webpack-plugin");
-let faviconsWebpackPlugin = require("favicons-webpack-plugin");
-
+const VueLoaderPlugin = require("vue-loader/lib/plugin");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CopyWebpackPlugin = require("copy-webpack-plugin");
+let FaviconsWebpackPlugin = require("favicons-webpack-plugin");
 
 module.exports = {
-  entry: path.join(__dirname, "index.js"),
+  entry: path.join(__dirname, "src/main.js"),
   output: {
     path: path.join(__dirname, "dist"),
     filename: "bundle.js"
   },
   module: {
     rules: [
+      {
+        test: /\.vue$/,
+        loader: "vue-loader"
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,
@@ -29,50 +33,92 @@ module.exports = {
       },
       {
         test: /\.(png|jp(e*)g|svg|bmp|ico)$/i,
-        use: [{
-          loader: "url-loader",
-          options: {
-            // limit: 8000,
-            limit: 1,
-            // name: "images/[hash]-[name].[ext]"
-            name: "view/images/[name].[ext]"
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              // limit: 8000,
+              limit: 1,
+              // name: "images/[hash]-[name].[ext]"
+              name: "view/images/[name].[ext]"
+            }
           }
-        }]
+        ]
       },
       {
         test: /\.html$/,
-        use: [ {
-          loader: 'html-loader',
-          options: {
-            removeComments: true,
-            minimize: false
+        use: [
+          {
+            loader: "html-loader",
+            options: {
+              removeComments: true,
+              minimize: false
+            }
           }
-        }]
+        ]
       }
     ]
   },
   plugins: [
-    new htmlWebpackPlugin({
-      template: path.join(__dirname, "index.html"),
-      filename: 'index.html',
-      inject: "body",
-      hash: true
+    // new HtmlWebpackPlugin({
+    //   template: path.join(__dirname, "index.html"),
+    //   filename: "index.html",
+    //   inject: "body",
+    //   hash: true,
+    //   minify: {
+    //     // collapseWhitespace: true,
+    //     removeComments: true,
+    //     removeRedundantAttributes: true,
+    //     useShortDoctype: true
+    //   }
+    // }),
+    /* config.plugin('vue-loader') */
+    new VueLoaderPlugin(),
+    /* config.plugin('define') */
+    // new DefinePlugin({
+    //   "process.env": {
+    //     NODE_ENV: '"development"',
+    //     BASE_URL: '"/"'
+    //   }
+    // }),
+    /* config.plugin('html') */
+    new HtmlWebpackPlugin({
+      templateParameters: (compilation, assets, pluginOptions) => {
+        // enhance html-webpack-plugin's built in template params
+        let stats;
+        return Object.assign(
+          {
+            // make stats lazy as it is expensive
+            get webpack() {
+              return stats || (stats = compilation.getStats().toJson());
+            },
+            compilation: compilation,
+            webpackConfig: compilation.options,
+            htmlWebpackPlugin: {
+              files: assets,
+              options: pluginOptions
+            }
+          },
+          resolveClientEnv(options, true /* raw */)
+        );
+      },
+      template: path.join(__dirname, "public/index.html")
     }),
-    new copyWebpackPlugin([
-      { 
-        from: 'assets/resources', 
-        to: '.'
+    new CopyWebpackPlugin([
+      {
+        from: "public/assets/resources",
+        to: "."
       }
     ]),
-    new faviconsWebpackPlugin({
-      logo: "./assets/favicon/asterics-logo.png",
-      prefix: 'assets/favicon/',
+    new FaviconsWebpackPlugin({
+      logo: "./public/assets/favicon/asterics-logo.png",
+      prefix: "assets/favicon/",
       // statsFilename: 'assets/iconstats.json',
       inject: true,
-      background: '#ffffff',
+      background: "#ffffff",
       title: "WebACS",
-      appDescription: 'AsTeRICS Configuration Suite',
-      display: 'browser',
+      appDescription: "AsTeRICS Configuration Suite",
+      display: "browser",
       icons: {
         android: true,
         appleIcon: true,
@@ -95,5 +141,5 @@ module.exports = {
   ],
   // mode: "production",
   // watch: true,
-  devtool: "source-map",
+  devtool: "source-map"
 };

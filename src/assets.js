@@ -1,1 +1,1 @@
-import "../assets/images/are_deco.png";
+import "../public/assets/images/are_deco.png";
