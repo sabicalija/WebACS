@@ -1,0 +1,14 @@
+{
+  "version": "3.0.0",
+  "name": "webacs",
+  "description": "Assistive Technology Rapid Integration and Construction Set",
+  "icons": {
+    "60": "/assets/favicon/firefox_app_60x60.png",
+    "128": "/assets/favicon/firefox_app_128x128.png",
+    "512": "/assets/favicon/firefox_app_512x512.png"
+  },
+  "developer": {
+    "name": "Alija Sabic",
+    "url": null
+  }
+}
