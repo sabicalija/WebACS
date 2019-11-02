@@ -44,9 +44,6 @@ export function encodeParam(text) {
 	return encoded;
 }
 
-  return encoded;
-}
-
 //replaces all occurrences of a 'oldString' with 'newString' in 'text'
 export function replaceAll(text, oldString, newString) {
 	return text.split(oldString).join(newString);
